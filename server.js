@@ -15,16 +15,6 @@ app.post('/mutation', (req, res) => {
         if (err) throw err;
         var dbo = db.db("heroku_gttjjfh2");
         var cursor = dbo.collection('mutations').find({ dna: "body.dna" });
-        if (!valida) {
-            res.status(403).json({
-                ok: false,
-                msg: 'No mutation'
-            })
-        } else {
-            res.status(200).json({
-                msg: 'Mutation'
-            });
-        }
         if (!cursor.hasNext) {
             dbo.collection("mutations").insertOne({ dna: body.dna, status: valida }, function(err, res) {
                 if (err) throw err;
@@ -36,6 +26,17 @@ app.post('/mutation', (req, res) => {
                 msg: 'Repeated mutation'
             });
         }
+        if (!valida) {
+            res.status(403).json({
+                ok: false,
+                msg: 'No mutation'
+            })
+        } else {
+            res.status(200).json({
+                msg: 'Mutation'
+            });
+        }
+
     });
 
 })
