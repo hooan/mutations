@@ -8,34 +8,37 @@ app.use(bodyParser.urlencoded({ extended: false }))
 
 app.post('/mutation', (req, res) => {
     let body = req.body;
-    console.log(body.dna);
     let valida = validate(body.dna);
 
     MongoClient.connect("mongodb://mut_user:m8t4t10n@ds161028.mlab.com:61028/heroku_gttjjfh2", function(err, db) {
+        var exist = false;
         if (err) throw err;
         var dbo = db.db("heroku_gttjjfh2");
-        var cursor = dbo.collection('mutations').find({ dna: "body.dna" });
-        if (!cursor.hasNext) {
-            dbo.collection("mutations").insertOne({ dna: body.dna, status: valida }, function(err, res) {
-                if (err) throw err;
-                console.log("1 document inserted");
-                db.close();
-            });
-        } else {
-            res.status(200).json({
-                msg: 'Repeated mutation'
-            });
-        }
-        if (!valida) {
-            res.status(403).json({
-                ok: false,
-                msg: 'No mutation'
-            })
-        } else {
-            res.status(200).json({
-                msg: 'Mutation'
-            });
-        }
+        var cursor = dbo.collection('mutations').findOne({ dna: body.dna }).then(function(data) {
+            console.log(data);
+            var msgResponse = 'DNA Repeated';
+            if (!data) {
+                dbo.collection("mutations").insertOne({ dna: body.dna, status: valida }, function(err, res) {
+                    if (err) throw err;
+                    console.log(`${ res.result } inserted`);
+                    db.close();
+                });
+                msgResponse = 'Mutation';
+            }
+            if (!valida) {
+                res.status(403).json({
+                    ok: false,
+                    msg: 'No mutation'
+                })
+            } else {
+                res.status(200).json({
+                    msg: msgResponse
+                });
+            }
+        }).catch(function(err) { //failure callback
+            console.log(err)
+        });
+
 
     });
 
