@@ -48,8 +48,7 @@ app.get('/stats', (req, res) => {
 
         if (err) throw err;
         var dbo = db.db("heroku_gttjjfh2");
-        var noMutations = 4;
-        var mutations = 5;
+
 
         var arr = dbo.collection('mutations').aggregate([
             { "$group": { _id: "$status", count: { $sum: 1 } } }
@@ -58,7 +57,7 @@ app.get('/stats', (req, res) => {
             mutation = data.find((k, v) => k['_id'] == true);
             noMutation = data.find((k, v) => k['_id'] == false);
             cMutations = mutation['count'] ? mutation['count'] : 0;
-            nNoMutations = noMutations['count'] ? noMutations['count'] : 0;
+            nNoMutations = noMutation['count'] ? noMutation['count'] : 0;
             res.json({
                 'count_mutations': cMutations,
                 'count_no_mutation': nNoMutations,
